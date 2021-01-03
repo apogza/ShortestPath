@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace shortest_path
+namespace graph_algorithms
 {
     graph_edge::graph_edge(double weight, int dest_node)
     {
@@ -49,6 +49,6 @@ namespace shortest_path
 
     bool graph_edge::operator<(const graph_edge& edge) const
     {
-        return this->get_weight() < edge.get_weight();
+        return this->get_weight() > edge.get_weight();
     }
 }

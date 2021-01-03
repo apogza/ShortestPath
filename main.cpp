@@ -1,12 +1,15 @@
 #include <iostream>
+#include <iterator>
+#include <fstream>
 #include <vector>
 #include <numeric>
 
 #include <graph.h>
 #include <path_finder.h>
+#include <mst_finder.h>
 
 using namespace std;
-using namespace shortest_path;
+using namespace graph_algorithms;
 
 /*
  *
@@ -32,31 +35,38 @@ graph* generate_graph(int num_nodes, double density)
 {
     graph* g = new graph();
 
-    for (int i = 1; i <= num_nodes; i++)
+    for (int i = 0; i < num_nodes; i++)
     {
-        g->add_node(num_nodes);
+        g->add_node(i);
     }
 
-    for (int i = 1; i <= num_nodes; i++)
+    for (int i = 0; i < num_nodes; i++)
     {
-        int generated_edges = 0;
-        for (int j = i + 1; j <= num_nodes; j++)
+        for (int j = i + 1; j < num_nodes; j++)
         {
             double random_prob = get_random_number(0, 100);
 
             // generate the edge only if it is less than the
             // specified density
 
-            if (random_prob <= density)
+            if (random_prob < density)
             {
-                generated_edges++;
                 double rand_weight = get_random_number(1, 10);
                 g->add_edge(rand_weight, i, j);
             }
+
         }
     }
 
     return g;
+}
+
+void print_node_vector(vector<int>& nodes)
+{
+    for (int i : nodes)
+    {
+        cout << i << " ";
+    }
 }
 
 /*
@@ -76,20 +86,26 @@ double average_path(graph* g)
     // generate all possible pairs of nodes
     // and find the path between them
 
-    for (int i = 1; i <= g->node_count(); i++)
+    for (int i = 0; i < g->node_count(); i++)
     {
-        for (int j = i + 1; j<= g->node_count(); j++)
+        for (int j = i + 1; j < g->node_count(); j++)
         {
             auto path_result = path_finder.find_path(i, j);
 
-             cout << "From " << i << " to " << j << " is ";
-             cout << path_result.first << " -> ";
+            cout << "From " << i << " to " << j << " is ";
 
-             for (int i : path_result.second)
-             {
-                 cout << i << " ";
-             }
-             cout << endl;
+            if (path_result.first > 0)
+            {
+                cout << path_result.first << " -> ";
+
+                print_node_vector(path_result.second);
+            }
+            else
+            {
+                cout << "none";
+            }
+
+            cout << endl;
 
             // we might get a -1 if there is no path
             // between the given nodes
@@ -106,10 +122,8 @@ double average_path(graph* g)
     return average;
 }
 
-int main()
+void find_average_path()
 {
-    srand(time(0));
-
     const int num_nodes = 50;
 
     graph* g_20 = generate_graph(num_nodes, 20);
@@ -121,6 +135,69 @@ int main()
     cout << "Nodes: " << g_40->node_count() << " Edges: " << g_40->edge_count() << endl;
     double average_path_40 = average_path(g_40);
     cout << "Average path for density 40: " << average_path_40 << endl;
+}
 
+void build_graph_from_file(graph* g)
+{
+    ifstream mst_file("mst_data.txt");
+    istream_iterator<string> start(mst_file), end;
+    vector<string> words(start, end);
+
+    int start_node = -1, end_node = -1;
+    double weight = -1;
+
+    for (auto it = words.begin() + 1; it != words.end(); it++)
+    {
+        if (start_node == -1)
+        {
+            start_node = stoi(*it);
+            continue;
+        }
+
+        if (end_node == -1)
+        {
+            end_node = stoi(*it);
+            continue;
+        }
+
+        if (weight == -1)
+        {
+            weight = stod(*it);
+        }
+
+        if (start_node != -1
+                && end_node != -1
+                && weight != -1)
+        {
+            g->add_edge(weight, start_node, end_node);
+
+            start_node = -1, end_node = -1;
+            weight = -1;
+        }
+
+    }
+}
+
+void find_mst(graph* g)
+{
+    build_graph_from_file(g);
+
+    mst_finder mst(g);
+
+    auto result = mst.find_mst();
+
+    cout << "MST Weight: " << result.first << endl;
+
+    cout << "Node sequence -> ";
+    print_node_vector(result.second);
+    cout << endl;
+}
+
+int main()
+{    
+    graph* g = new graph();
+    build_graph_from_file(g);
+
+    find_mst(g);
     return 0;
 }

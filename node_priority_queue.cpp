@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace shortest_path
+namespace graph_algorithms
 {
     node_priority_queue::node_priority_queue()
     {

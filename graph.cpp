@@ -14,7 +14,7 @@
 #include <iostream>
 #include <graph.h>
 
-namespace shortest_path
+namespace graph_algorithms
 {
     graph::graph()
     {
@@ -39,7 +39,7 @@ namespace shortest_path
     int graph::edge_count()
     {
         int total_size = 0;
-        for (auto node_edge_pair : node_edge_map)
+        for (auto& node_edge_pair : node_edge_map)
         {
             total_size += node_edge_pair.second.size();
         }
@@ -76,16 +76,16 @@ namespace shortest_path
      */
     void graph::add_edge(int start_node, graph_edge* edge)
     {
-        char second_node = edge->get_dest_node();
+        char dest_node = edge->get_dest_node();
 
         if (!node_exists(start_node))
         {
             add_node(start_node);
         }
 
-        if (!node_exists(second_node))
+        if (!node_exists(dest_node))
         {
-            add_node(second_node);
+            add_node(dest_node);
         }
 
         if (!edge_exists(start_node, edge))
@@ -96,9 +96,9 @@ namespace shortest_path
             if (!is_directed)
             {
                 graph_edge* inverse_edge = new graph_edge(edge->get_weight(), start_node);
-                if (!edge_exists(second_node, inverse_edge))
+                if (!edge_exists(dest_node, inverse_edge))
                 {
-                    node_edge_map[second_node].push_back(inverse_edge);
+                    node_edge_map[dest_node].push_back(inverse_edge);
                 }
                 else
                 {
@@ -114,7 +114,7 @@ namespace shortest_path
 
     void graph::print()
     {
-        for (auto pair : node_edge_map)
+        for (auto& pair : node_edge_map)
         {
             cout << "Node: " << pair.first << " -> ";
             for (graph_edge* e : pair.second)
@@ -134,7 +134,7 @@ namespace shortest_path
     {
         vector<int> nodes;
 
-        for (auto node_edges : node_edge_map)
+        for (auto& node_edges : node_edge_map)
         {
             nodes.push_back(node_edges.first);
         }
@@ -161,7 +161,7 @@ namespace shortest_path
 
     bool graph::edge_exists(int start_node, graph_edge* edge)
     {
-        if (node_exists(start_node))
+        if (!node_exists(start_node))
         {
             return false;
         }
@@ -189,7 +189,7 @@ namespace shortest_path
 
     void graph::clear()
     {
-        for (auto pair: node_edge_map)
+        for (auto& pair: node_edge_map)
         {
             vector<graph_edge*> edges = pair.second;
             for (graph_edge* edge : edges)

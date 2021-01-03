@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace shortest_path
+namespace graph_algorithms
 {
     path_finder::path_finder(graph* g)
     {
@@ -26,6 +26,7 @@ namespace shortest_path
     {
         open_set.clear();
         closed_set.clear();
+        vector<int> visited_nodes;
 
         int current_node = start_node;
         double total_weight = 0;
@@ -33,6 +34,7 @@ namespace shortest_path
         while (current_node != end_node)
         {
             closed_set.insert(current_node);
+            visited_nodes.push_back(current_node);
 
             vector<graph_edge*> current_node_edges = g->get_edges(current_node);
             update_open_set(current_node, current_node_edges, total_weight);
@@ -46,7 +48,10 @@ namespace shortest_path
             if (closest_node.first == 0)
             {
                 total_weight = -1;
+
                 closed_set.clear();
+                visited_nodes.clear();
+
                 break;
             }
 
@@ -54,31 +59,13 @@ namespace shortest_path
             current_node = closest_node.first;
         }
 
-        closed_set.insert(current_node);
-
-        return make_pair(total_weight, closed_set_to_vector());
-    }
-
-    /*
-     * Method created for convinience.
-     * We could return the closed set,
-     * but it is more user friends to return
-     * a vector.
-     *
-     */
-
-    vector<int> path_finder::closed_set_to_vector()
-    {
-        vector<int> vec;
-        for (int node : closed_set)
+        if (total_weight > 0)
         {
-            // insert elements at the beginning
-            // in order to preserve the order
-            vec.insert(vec.begin(), node);
+            closed_set.insert(current_node);
+            visited_nodes.push_back(current_node);
         }
 
-        //return by value
-        return vec;
+        return make_pair(total_weight, visited_nodes);
     }
 
     /*

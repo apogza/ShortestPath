@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace shortest_path
+namespace graph_algorithms
 {
     class path_finder
     {

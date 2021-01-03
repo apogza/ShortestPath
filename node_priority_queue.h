@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace shortest_path
+namespace graph_algorithms
 {
     class node_priority_queue
     {

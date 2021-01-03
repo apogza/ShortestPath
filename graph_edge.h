@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace shortest_path
+namespace graph_algorithms
 {
     class graph_edge
     {
